@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -24,8 +24,8 @@ model Draw {
   sourceName       String?
   participantCount Int
   winnerCount      Int
-  participants     String   @db.Text
-  winners          String   @db.Text
+  participants     String
+  winners          String
   createdAt        DateTime @default(now())
 
   @@index([userId, createdAt])

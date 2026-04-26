@@ -37,16 +37,24 @@ export function AdminDashboardClient() {
   const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [analytics, setAnalytics] = useState<{ total: number; byCountry: CountryRow[] } | null>(null);
+  const [analyticsPeriod, setAnalyticsPeriod] = useState("7d");
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
 
   useEffect(() => {
     fetch("/api/admin/users")
       .then((r) => r.json())
       .then(setUsers)
       .finally(() => setLoading(false));
-    fetch("/api/admin/analytics")
-      .then((r) => r.json())
-      .then(setAnalytics);
   }, []);
+
+  useEffect(() => {
+    setAnalyticsLoading(true);
+    setAnalytics(null);
+    fetch(`/api/admin/analytics?period=${analyticsPeriod}`)
+      .then((r) => r.json())
+      .then(setAnalytics)
+      .finally(() => setAnalyticsLoading(false));
+  }, [analyticsPeriod]);
 
   const toggleExpand = async (userId: string) => {
     if (expandedUser === userId) { setExpandedUser(null); return; }
@@ -125,21 +133,39 @@ export function AdminDashboardClient() {
 
       {/* Visitor Analytics */}
       <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
-        <div className="px-5 py-4 border-b border-zinc-800 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+        <div className="px-5 py-4 border-b border-zinc-800 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2 shrink-0">
             <Globe className="w-4 h-4 text-zinc-500" />
             <h2 className="font-semibold text-sm">Site Visitors</h2>
+            {analytics && (
+              <span className="text-xs text-zinc-500 ml-1">
+                — <span className="text-white font-semibold">{analytics.total.toLocaleString()}</span> sessions
+              </span>
+            )}
           </div>
-          {analytics && (
-            <span className="text-xs text-zinc-500">
-              <span className="text-white font-semibold">{analytics.total.toLocaleString()}</span> total sessions
-            </span>
-          )}
+          <div className="flex items-center gap-1">
+            {(["today", "7d", "30d", "1y"] as const).map((p) => {
+              const labels: Record<string, string> = { today: "Today", "7d": "7 days", "30d": "30 days", "1y": "1 year" };
+              return (
+                <button
+                  key={p}
+                  onClick={() => setAnalyticsPeriod(p)}
+                  className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
+                    analyticsPeriod === p
+                      ? "bg-[#FF6B1A]/20 text-[#FF8F3F] border border-[#FF6B1A]/30"
+                      : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800"
+                  }`}
+                >
+                  {labels[p]}
+                </button>
+              );
+            })}
+          </div>
         </div>
-        {!analytics ? (
+        {analyticsLoading || !analytics ? (
           <div className="p-6 text-center text-zinc-500 text-sm">Loading...</div>
         ) : analytics.total === 0 ? (
-          <div className="p-6 text-center text-zinc-500 text-sm">No visits recorded yet.</div>
+          <div className="p-6 text-center text-zinc-500 text-sm">No visits in this period.</div>
         ) : (
           <div className="p-5">
             <div className="space-y-2">

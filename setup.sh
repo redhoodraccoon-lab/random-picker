@@ -2,5 +2,6 @@
 rm -rf .next node_modules
 chmod -R 755 .
 npm install
-npx prisma migrate dev --name init
+npx prisma db push
+npx prisma db seed
 npm run build

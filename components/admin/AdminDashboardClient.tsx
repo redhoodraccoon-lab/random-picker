@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
-import { Users, Trophy, Shield, ChevronDown, ChevronUp, Trash2 } from "lucide-react";
+import { Users, Trophy, Shield, ChevronDown, ChevronUp, Trash2, Globe } from "lucide-react";
 import * as Dialog from "@radix-ui/react-dialog";
 
 type User = {
@@ -13,6 +13,8 @@ type User = {
   createdAt: string;
   _count: { draws: number };
 };
+
+type CountryRow = { country: string | null; count: number };
 
 type Draw = {
   id: string;
@@ -34,12 +36,16 @@ export function AdminDashboardClient() {
   const [updatingRole, setUpdatingRole] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [analytics, setAnalytics] = useState<{ total: number; byCountry: CountryRow[] } | null>(null);
 
   useEffect(() => {
     fetch("/api/admin/users")
       .then((r) => r.json())
       .then(setUsers)
       .finally(() => setLoading(false));
+    fetch("/api/admin/analytics")
+      .then((r) => r.json())
+      .then(setAnalytics);
   }, []);
 
   const toggleExpand = async (userId: string) => {
@@ -115,6 +121,61 @@ export function AdminDashboardClient() {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Visitor Analytics */}
+      <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+        <div className="px-5 py-4 border-b border-zinc-800 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Globe className="w-4 h-4 text-zinc-500" />
+            <h2 className="font-semibold text-sm">Site Visitors</h2>
+          </div>
+          {analytics && (
+            <span className="text-xs text-zinc-500">
+              <span className="text-white font-semibold">{analytics.total.toLocaleString()}</span> total sessions
+            </span>
+          )}
+        </div>
+        {!analytics ? (
+          <div className="p-6 text-center text-zinc-500 text-sm">Loading...</div>
+        ) : analytics.total === 0 ? (
+          <div className="p-6 text-center text-zinc-500 text-sm">No visits recorded yet.</div>
+        ) : (
+          <div className="p-5">
+            <div className="space-y-2">
+              {analytics.byCountry.map(({ country, count }) => {
+                const code = country ?? "??";
+                const flag = code === "??"
+                  ? "🌐"
+                  : String.fromCodePoint(...[...code.toUpperCase()].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65));
+                const label = code === "??"
+                  ? "Unknown"
+                  : (() => {
+                      try { return new Intl.DisplayNames(["en"], { type: "region" }).of(code) ?? code; }
+                      catch { return code; }
+                    })();
+                const pct = Math.round((count / analytics.total) * 100);
+                return (
+                  <div key={code} className="flex items-center gap-3">
+                    <span className="text-lg leading-none w-6 text-center shrink-0">{flag}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs text-zinc-300 truncate">{label}</span>
+                        <span className="text-xs text-zinc-500 shrink-0 ml-2">{count.toLocaleString()} ({pct}%)</span>
+                      </div>
+                      <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-[#FF6B1A] rounded-full"
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Users Table */}

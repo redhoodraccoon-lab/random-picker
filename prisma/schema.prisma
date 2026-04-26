@@ -31,3 +31,11 @@ model Draw {
 
   @@index([userId, createdAt])
 }
+
+model PageView {
+  id        String   @id @default(cuid())
+  country   String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}

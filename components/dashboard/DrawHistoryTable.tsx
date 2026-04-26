@@ -79,8 +79,8 @@ export function DrawHistoryTable({ draws, onDelete }: Props) {
   return (
     <div>
       {/* Filters */}
-      <div className="flex flex-wrap items-center gap-3 mb-5">
-        <div className="relative flex-1 min-w-[200px]">
+      <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-3 mb-5">
+        <div className="relative flex-1 min-w-0 sm:min-w-[200px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-500" />
           <input
             type="text"
@@ -91,120 +91,193 @@ export function DrawHistoryTable({ draws, onDelete }: Props) {
           />
         </div>
         <div className="flex items-center gap-2">
-          <Filter className="w-3.5 h-3.5 text-zinc-500" />
+          <Filter className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
           <select
             value={sourceFilter}
             onChange={(e) => setSourceFilter(e.target.value as "all" | "file" | "manual")}
-            className="text-sm rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-300 px-3 py-2 outline-none focus:border-brand/50 transition"
+            className="flex-1 text-sm rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-300 px-3 py-2 outline-none focus:border-brand/50 transition"
           >
             <option value="all">All sources</option>
             <option value="file">File upload</option>
             <option value="manual">Manual input</option>
           </select>
         </div>
-        <input
-          type="date"
-          value={dateFrom}
-          onChange={(e) => setDateFrom(e.target.value)}
-          className="text-sm rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-300 px-3 py-2 outline-none focus:border-brand/50 transition"
-        />
-        <span className="text-zinc-600 text-sm">—</span>
-        <input
-          type="date"
-          value={dateTo}
-          onChange={(e) => setDateTo(e.target.value)}
-          className="text-sm rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-300 px-3 py-2 outline-none focus:border-brand/50 transition"
-        />
+        <div className="flex items-center gap-2">
+          <input
+            type="date"
+            value={dateFrom}
+            onChange={(e) => setDateFrom(e.target.value)}
+            className="flex-1 text-sm rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-300 px-3 py-2 outline-none focus:border-brand/50 transition"
+          />
+          <span className="text-zinc-600 text-sm shrink-0">—</span>
+          <input
+            type="date"
+            value={dateTo}
+            onChange={(e) => setDateTo(e.target.value)}
+            className="flex-1 text-sm rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-300 px-3 py-2 outline-none focus:border-brand/50 transition"
+          />
+        </div>
       </div>
 
-      {/* Table */}
       {filtered.length === 0 ? (
         <div className="text-center py-16 text-zinc-600">
           {draws.length === 0 ? "No draws yet. Run your first pick!" : "No draws match your filters."}
         </div>
       ) : (
-        <div className="border border-zinc-800 rounded-xl overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-zinc-800 bg-zinc-900/60">
-                <th className="text-left px-5 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Date / Time</th>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Source</th>
-                <th className="text-right px-5 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Participants</th>
-                <th className="text-right px-5 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Winners</th>
-                <th className="text-right px-5 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-800/60">
-              {filtered.map((draw) => {
-                const isOpen = expanded.has(draw.id);
-                const winners: string[] = JSON.parse(draw.winners);
-                const date = format(new Date(draw.createdAt), "MMM d, yyyy");
-                const time = format(new Date(draw.createdAt), "HH:mm");
-
-                return (
-                  <>
-                    <tr
-                      key={draw.id}
-                      className="bg-zinc-900/30 hover:bg-zinc-800/40 transition-colors cursor-pointer"
-                      onClick={() => toggle(draw.id)}
-                    >
-                      <td className="px-5 py-4">
-                        <div className="font-medium text-zinc-200">{date}</div>
-                        <div className="text-xs text-zinc-600 mt-0.5">{time}</div>
-                      </td>
-                      <td className="px-5 py-4">
+        <>
+          {/* ── Mobile card list (hidden on md+) ── */}
+          <div className="md:hidden space-y-3">
+            {filtered.map((draw) => {
+              const isOpen = expanded.has(draw.id);
+              const winners: string[] = JSON.parse(draw.winners);
+              const date = format(new Date(draw.createdAt), "MMM d, yyyy");
+              const time = format(new Date(draw.createdAt), "HH:mm");
+              return (
+                <div key={draw.id} className="bg-zinc-800/50 border border-zinc-700 rounded-xl overflow-hidden">
+                  {/* Card header */}
+                  <div
+                    className="flex items-start justify-between px-4 pt-4 pb-3 cursor-pointer"
+                    onClick={() => toggle(draw.id)}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm font-medium text-zinc-200">{date}</span>
+                        <span className="text-xs text-zinc-600">{time}</span>
+                      </div>
+                      <div className="mt-1.5">
                         <Badge variant={draw.sourceType === "file" ? "file" : "manual"}>
                           {draw.sourceType === "file" ? draw.sourceName ?? "File" : "Manual"}
                         </Badge>
-                      </td>
-                      <td className="px-5 py-4 text-right font-mono text-zinc-300">{draw.participantCount.toLocaleString()}</td>
-                      <td className="px-5 py-4 text-right">
-                        <span className="font-mono text-brand font-semibold">{draw.winnerCount}</span>
-                      </td>
-                      <td className="px-5 py-4">
-                        <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
-                          <Button size="icon" variant="ghost" onClick={() => setViewDraw(draw)} title="View winners">
-                            <Eye className="w-3.5 h-3.5" />
-                          </Button>
-                          <Button size="icon" variant="ghost" onClick={() => handleExport(draw.id, date)} title="Export CSV">
-                            <Download className="w-3.5 h-3.5" />
-                          </Button>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            onClick={() => setConfirmDeleteId(draw.id)}
-                            disabled={deleting === draw.id}
-                            className="hover:text-red-400 hover:bg-red-950/30"
-                            title="Delete"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </Button>
-                          {isOpen ? <ChevronUp className="w-3.5 h-3.5 text-zinc-600 ml-1" /> : <ChevronDown className="w-3.5 h-3.5 text-zinc-600 ml-1" />}
-                        </div>
-                      </td>
-                    </tr>
+                      </div>
+                    </div>
+                    {isOpen ? <ChevronUp className="w-4 h-4 text-zinc-500 mt-0.5 shrink-0" /> : <ChevronDown className="w-4 h-4 text-zinc-500 mt-0.5 shrink-0" />}
+                  </div>
+                  {/* Stats row */}
+                  <div className="flex items-center gap-4 px-4 pb-3 text-sm">
+                    <span className="text-zinc-500">{draw.participantCount.toLocaleString()} <span className="text-zinc-600">participants</span></span>
+                    <span className="text-brand font-semibold font-mono">{draw.winnerCount}</span>
+                    <span className="text-zinc-600">winners</span>
+                  </div>
+                  {/* Actions */}
+                  <div className="flex items-center gap-1 px-3 pb-3" onClick={(e) => e.stopPropagation()}>
+                    <Button size="icon" variant="ghost" onClick={() => setViewDraw(draw)} title="View winners">
+                      <Eye className="w-3.5 h-3.5" />
+                    </Button>
+                    <Button size="icon" variant="ghost" onClick={() => handleExport(draw.id, date)} title="Export CSV">
+                      <Download className="w-3.5 h-3.5" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => setConfirmDeleteId(draw.id)}
+                      disabled={deleting === draw.id}
+                      className="hover:text-red-400 hover:bg-red-950/30"
+                      title="Delete"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                  {/* Expanded winners */}
+                  {isOpen && (
+                    <div className="border-t border-zinc-700 px-4 py-3 bg-zinc-900/40">
+                      <div className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Winners</div>
+                      <div className="flex flex-wrap gap-2">
+                        {winners.map((w, i) => (
+                          <div key={i} className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-zinc-800 border border-zinc-700">
+                            <span className="text-xs font-mono text-zinc-600">{String(i + 1).padStart(2, "0")}</span>
+                            <span className="text-sm font-medium text-zinc-200">{w}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
 
-                    {isOpen && (
-                      <tr key={`${draw.id}-expand`} className="bg-zinc-900/60">
-                        <td colSpan={5} className="px-5 py-4">
-                          <div className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">Winners</div>
-                          <div className="flex flex-wrap gap-2">
-                            {winners.map((w, i) => (
-                              <div key={i} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-800 border border-zinc-700">
-                                <span className="text-xs font-mono text-zinc-600">{String(i + 1).padStart(2, "0")}</span>
-                                <span className="text-sm font-medium text-zinc-200">{w}</span>
-                              </div>
-                            ))}
+          {/* ── Desktop table (hidden below md) ── */}
+          <div className="hidden md:block border border-zinc-800 rounded-xl overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-zinc-800 bg-zinc-900/60">
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Date / Time</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Source</th>
+                  <th className="text-right px-5 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Participants</th>
+                  <th className="text-right px-5 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Winners</th>
+                  <th className="text-right px-5 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-800/60">
+                {filtered.map((draw) => {
+                  const isOpen = expanded.has(draw.id);
+                  const winners: string[] = JSON.parse(draw.winners);
+                  const date = format(new Date(draw.createdAt), "MMM d, yyyy");
+                  const time = format(new Date(draw.createdAt), "HH:mm");
+                  return (
+                    <>
+                      <tr
+                        key={draw.id}
+                        className="bg-zinc-900/30 hover:bg-zinc-800/40 transition-colors cursor-pointer"
+                        onClick={() => toggle(draw.id)}
+                      >
+                        <td className="px-5 py-4">
+                          <div className="font-medium text-zinc-200">{date}</div>
+                          <div className="text-xs text-zinc-600 mt-0.5">{time}</div>
+                        </td>
+                        <td className="px-5 py-4">
+                          <Badge variant={draw.sourceType === "file" ? "file" : "manual"}>
+                            {draw.sourceType === "file" ? draw.sourceName ?? "File" : "Manual"}
+                          </Badge>
+                        </td>
+                        <td className="px-5 py-4 text-right font-mono text-zinc-300">{draw.participantCount.toLocaleString()}</td>
+                        <td className="px-5 py-4 text-right">
+                          <span className="font-mono text-brand font-semibold">{draw.winnerCount}</span>
+                        </td>
+                        <td className="px-5 py-4">
+                          <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
+                            <Button size="icon" variant="ghost" onClick={() => setViewDraw(draw)} title="View winners">
+                              <Eye className="w-3.5 h-3.5" />
+                            </Button>
+                            <Button size="icon" variant="ghost" onClick={() => handleExport(draw.id, date)} title="Export CSV">
+                              <Download className="w-3.5 h-3.5" />
+                            </Button>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => setConfirmDeleteId(draw.id)}
+                              disabled={deleting === draw.id}
+                              className="hover:text-red-400 hover:bg-red-950/30"
+                              title="Delete"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                            {isOpen ? <ChevronUp className="w-3.5 h-3.5 text-zinc-600 ml-1" /> : <ChevronDown className="w-3.5 h-3.5 text-zinc-600 ml-1" />}
                           </div>
                         </td>
                       </tr>
-                    )}
-                  </>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                      {isOpen && (
+                        <tr key={`${draw.id}-expand`} className="bg-zinc-900/60">
+                          <td colSpan={5} className="px-5 py-4">
+                            <div className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">Winners</div>
+                            <div className="flex flex-wrap gap-2">
+                              {winners.map((w, i) => (
+                                <div key={i} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-800 border border-zinc-700">
+                                  <span className="text-xs font-mono text-zinc-600">{String(i + 1).padStart(2, "0")}</span>
+                                  <span className="text-sm font-medium text-zinc-200">{w}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
 
       {/* Winners modal */}
@@ -218,7 +291,7 @@ export function DrawHistoryTable({ draws, onDelete }: Props) {
           <DialogBody>
             {viewDraw && (
               <>
-                <div className="flex gap-4 mb-5 text-xs text-zinc-500">
+                <div className="flex flex-wrap gap-3 mb-5 text-xs text-zinc-500">
                   <span>{viewDraw.participantCount} participants</span>
                   <span>·</span>
                   <span className="text-brand font-semibold">{viewDraw.winnerCount} winners</span>

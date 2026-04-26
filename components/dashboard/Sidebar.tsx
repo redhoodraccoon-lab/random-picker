@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
-import { LayoutDashboard, Shuffle, LogOut, Trophy, Shield } from "lucide-react";
+import { LayoutDashboard, Shuffle, LogOut, Trophy, Shield, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const userNav = [
@@ -11,15 +11,32 @@ const userNav = [
   { href: "/picker", label: "Random Picker", icon: Shuffle },
 ];
 
-export function Sidebar({ userEmail, role }: { userEmail: string; role: string }) {
+interface Props {
+  userEmail: string;
+  role: string;
+  mobileOpen?: boolean;
+  onMobileClose?: () => void;
+}
+
+export function Sidebar({ userEmail, role, mobileOpen, onMobileClose }: Props) {
   const pathname = usePathname();
   const isAdmin = role === "ADMIN";
   const isAdminPanel = pathname.startsWith("/admin");
 
   return (
-    <aside className="w-[220px] shrink-0 flex flex-col border-r border-zinc-800 bg-zinc-950">
+    <aside
+      className={cn(
+        "w-[220px] shrink-0 flex flex-col border-r border-zinc-800 bg-zinc-950 z-50 transition-transform duration-300",
+        // Mobile: fixed overlay drawer
+        "fixed inset-y-0 left-0",
+        // Desktop: in document flow, always visible
+        "md:relative md:translate-x-0",
+        // Mobile open/close state
+        mobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+      )}
+    >
       {/* Logo */}
-      <div className="px-5 py-5 border-b border-zinc-800">
+      <div className="px-5 py-5 border-b border-zinc-800 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-brand/20 border border-brand/30 flex items-center justify-center">
             <Trophy className="w-4 h-4 text-brand" />
@@ -29,6 +46,14 @@ export function Sidebar({ userEmail, role }: { userEmail: string; role: string }
             <div className="text-[10px] text-zinc-600 uppercase tracking-wider mt-0.5">By Ketso.Co</div>
           </div>
         </div>
+        {/* Close button — mobile only */}
+        <button
+          className="md:hidden p-1 rounded-lg text-zinc-500 hover:text-white hover:bg-zinc-800 transition-colors"
+          onClick={onMobileClose}
+          aria-label="Close menu"
+        >
+          <X className="w-4 h-4" />
+        </button>
       </div>
 
       {/* Nav */}
@@ -37,6 +62,7 @@ export function Sidebar({ userEmail, role }: { userEmail: string; role: string }
           <Link
             key={href}
             href={href}
+            onClick={onMobileClose}
             className={cn(
               "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
               pathname === href || pathname.startsWith(href + "/")
@@ -57,6 +83,7 @@ export function Sidebar({ userEmail, role }: { userEmail: string; role: string }
             </div>
             <Link
               href="/admin"
+              onClick={onMobileClose}
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
                 isAdminPanel

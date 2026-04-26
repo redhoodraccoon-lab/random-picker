@@ -40,7 +40,7 @@ const cards = [
 
 export function StatsCards({ stats }: { stats: Stats }) {
   return (
-    <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
       {cards.map(({ key, label, icon: Icon, color, glow }) => (
         <div
           key={key}

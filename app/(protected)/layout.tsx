@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
-import { Sidebar } from "@/components/dashboard/Sidebar";
+import { ResponsiveShell } from "@/components/dashboard/ResponsiveShell";
 
 export default async function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
@@ -10,11 +10,8 @@ export default async function ProtectedLayout({ children }: { children: React.Re
   const role = (session.user as { role: string }).role ?? "USER";
 
   return (
-    <div className="flex h-screen bg-zinc-950 overflow-hidden">
-      <Sidebar userEmail={session.user.email} role={role} />
-      <main className="flex-1 overflow-auto">
-        {children}
-      </main>
-    </div>
+    <ResponsiveShell userEmail={session.user.email ?? ""} role={role}>
+      {children}
+    </ResponsiveShell>
   );
 }

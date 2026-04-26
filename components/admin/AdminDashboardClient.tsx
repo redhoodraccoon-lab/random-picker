@@ -97,23 +97,23 @@ export function AdminDashboardClient() {
   const adminCount = users.filter((u) => u.role === "ADMIN").length;
 
   return (
-    <div className="p-6 space-y-6 text-white">
+    <div className="p-4 sm:p-6 space-y-5 sm:space-y-6 text-white">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+          <h1 className="text-xl md:text-2xl font-bold">Admin Dashboard</h1>
           <p className="text-zinc-400 text-sm mt-1">Manage users and view activity</p>
         </div>
         <a
           href="/dashboard"
-          className="px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-sm text-zinc-300 transition-colors"
+          className="px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-sm text-zinc-300 transition-colors shrink-0"
         >
           ← User Dashboard
         </a>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         {[
           { label: "Total Users", value: users.length, icon: Users, color: "text-blue-400" },
           { label: "Total Draws", value: totalDraws, icon: Trophy, color: "text-brand" },
@@ -133,7 +133,7 @@ export function AdminDashboardClient() {
 
       {/* Visitor Analytics */}
       <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
-        <div className="px-5 py-4 border-b border-zinc-800 flex items-center justify-between gap-4">
+        <div className="px-5 py-4 border-b border-zinc-800 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2 shrink-0">
             <Globe className="w-4 h-4 text-zinc-500" />
             <h2 className="font-semibold text-sm">Site Visitors</h2>
@@ -215,52 +215,60 @@ export function AdminDashboardClient() {
           <div className="divide-y divide-zinc-800">
             {users.map((user) => (
               <div key={user.id}>
-                <div className="px-5 py-4 flex items-center gap-4">
-                  {/* Avatar */}
-                  <div className="w-8 h-8 rounded-full bg-zinc-700 flex items-center justify-center text-xs font-bold shrink-0">
-                    {user.email[0].toUpperCase()}
+                <div className="px-4 sm:px-5 py-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                  {/* Top row on mobile: avatar + info + expand */}
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className="w-8 h-8 rounded-full bg-zinc-700 flex items-center justify-center text-xs font-bold shrink-0">
+                      {user.email[0].toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{user.email}</p>
+                      <p className="text-xs text-zinc-500">
+                        {user.name || "No name"} · Joined {format(new Date(user.createdAt), "MMM d, yyyy")}
+                      </p>
+                    </div>
+                    {/* Expand — visible on mobile here, on desktop at end */}
+                    <button
+                      onClick={() => toggleExpand(user.id)}
+                      className="sm:hidden p-1.5 rounded-lg hover:bg-zinc-800 text-zinc-500 hover:text-zinc-300 transition-colors shrink-0"
+                    >
+                      {expandedUser === user.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </button>
                   </div>
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{user.email}</p>
-                    <p className="text-xs text-zinc-500">
-                      {user.name || "No name"} · Joined {format(new Date(user.createdAt), "MMM d, yyyy")}
-                    </p>
+                  {/* Controls row */}
+                  <div className="flex items-center gap-2 sm:gap-3 ml-11 sm:ml-0">
+                    <div className="text-center shrink-0">
+                      <p className="text-sm font-semibold">{user._count.draws}</p>
+                      <p className="text-xs text-zinc-500">draws</p>
+                    </div>
+                    <select
+                      value={user.role}
+                      disabled={updatingRole === user.id}
+                      onChange={(e) => changeRole(user, e.target.value)}
+                      className={`px-2 py-1 rounded-lg text-xs font-semibold border bg-zinc-800 transition-colors shrink-0 focus:outline-none cursor-pointer disabled:opacity-50 ${
+                        user.role === "ADMIN"
+                          ? "text-purple-300 border-purple-500/30"
+                          : "text-zinc-400 border-zinc-600"
+                      }`}
+                    >
+                      <option value="USER">USER</option>
+                      <option value="ADMIN">ADMIN</option>
+                    </select>
+                    <button
+                      onClick={() => setDeleteTarget(user)}
+                      className="p-1.5 rounded-lg hover:bg-red-500/10 text-zinc-600 hover:text-red-400 transition-colors shrink-0"
+                      title="Delete user"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                    {/* Expand — desktop only */}
+                    <button
+                      onClick={() => toggleExpand(user.id)}
+                      className="hidden sm:flex p-1.5 rounded-lg hover:bg-zinc-800 text-zinc-500 hover:text-zinc-300 transition-colors shrink-0"
+                    >
+                      {expandedUser === user.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </button>
                   </div>
-                  {/* Draws count */}
-                  <div className="text-center shrink-0">
-                    <p className="text-sm font-semibold">{user._count.draws}</p>
-                    <p className="text-xs text-zinc-500">draws</p>
-                  </div>
-                  {/* Role dropdown */}
-                  <select
-                    value={user.role}
-                    disabled={updatingRole === user.id}
-                    onChange={(e) => changeRole(user, e.target.value)}
-                    className={`px-2 py-1 rounded-lg text-xs font-semibold border bg-zinc-800 transition-colors shrink-0 focus:outline-none cursor-pointer disabled:opacity-50 ${
-                      user.role === "ADMIN"
-                        ? "text-purple-300 border-purple-500/30"
-                        : "text-zinc-400 border-zinc-600"
-                    }`}
-                  >
-                    <option value="USER">USER</option>
-                    <option value="ADMIN">ADMIN</option>
-                  </select>
-                  {/* Delete button */}
-                  <button
-                    onClick={() => setDeleteTarget(user)}
-                    className="p-1.5 rounded-lg hover:bg-red-500/10 text-zinc-600 hover:text-red-400 transition-colors shrink-0"
-                    title="Delete user"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                  {/* Expand draws */}
-                  <button
-                    onClick={() => toggleExpand(user.id)}
-                    className="p-1.5 rounded-lg hover:bg-zinc-800 text-zinc-500 hover:text-zinc-300 transition-colors shrink-0"
-                  >
-                    {expandedUser === user.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                  </button>
                 </div>
 
                 {/* Expanded draws */}

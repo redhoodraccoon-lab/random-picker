@@ -53,7 +53,7 @@ function LoginForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            placeholder="admin@admin.com"
+            placeholder="user@ketso.xyz"
             className={inputClass}
           />
         </div>

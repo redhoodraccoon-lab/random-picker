@@ -3,16 +3,18 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
-import { LayoutDashboard, Shuffle, LogOut, Trophy } from "lucide-react";
+import { LayoutDashboard, Shuffle, LogOut, Trophy, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const nav = [
+const userNav = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/picker", label: "Random Picker", icon: Shuffle },
 ];
 
-export function Sidebar({ userEmail }: { userEmail: string }) {
+export function Sidebar({ userEmail, role }: { userEmail: string; role: string }) {
   const pathname = usePathname();
+  const isAdmin = role === "ADMIN";
+  const isAdminPanel = pathname.startsWith("/admin");
 
   return (
     <aside className="w-[220px] shrink-0 flex flex-col border-r border-zinc-800 bg-zinc-950">
@@ -31,7 +33,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-1">
-        {nav.map(({ href, label, icon: Icon }) => (
+        {userNav.map(({ href, label, icon: Icon }) => (
           <Link
             key={href}
             href={href}
@@ -46,11 +48,37 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
             {label}
           </Link>
         ))}
+
+        {/* Admin switch */}
+        {isAdmin && (
+          <>
+            <div className="pt-3 pb-1 px-3">
+              <p className="text-[10px] uppercase tracking-widest text-zinc-600">Admin</p>
+            </div>
+            <Link
+              href="/admin"
+              className={cn(
+                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
+                isAdminPanel
+                  ? "bg-purple-500/15 text-purple-300 border border-purple-500/20"
+                  : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60"
+              )}
+            >
+              <Shield className="w-4 h-4 shrink-0" />
+              Admin Panel
+            </Link>
+          </>
+        )}
       </nav>
 
       {/* Footer */}
       <div className="px-3 py-4 border-t border-zinc-800 space-y-2">
-        <div className="px-3 py-2">
+        <div className="px-3 py-2 flex items-center gap-2">
+          {isAdmin && (
+            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30 uppercase tracking-wide">
+              Admin
+            </span>
+          )}
           <p className="text-xs text-zinc-600 truncate">{userEmail}</p>
         </div>
         <button

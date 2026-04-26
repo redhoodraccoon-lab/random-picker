@@ -7,9 +7,11 @@ export default async function ProtectedLayout({ children }: { children: React.Re
   const session = await getServerSession(authOptions);
   if (!session) redirect("/login");
 
+  const role = (session.user as { role: string }).role ?? "USER";
+
   return (
     <div className="flex h-screen bg-zinc-950 overflow-hidden">
-      <Sidebar userEmail={session.user.email} />
+      <Sidebar userEmail={session.user.email} role={role} />
       <main className="flex-1 overflow-auto">
         {children}
       </main>

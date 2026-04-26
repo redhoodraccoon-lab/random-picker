@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { DrawlotMark } from "@/components/DrawlotMark";
 
 function LoginForm() {
   const router = useRouter();
@@ -107,7 +108,7 @@ export default function LoginPage() {
 
       <div className="relative w-full max-w-md">
         <div className="flex justify-center mb-10">
-          <img src="/arena-logo.png" alt="Arena" className="h-10 drop-shadow-lg" />
+          <DrawlotMark size="lg" />
         </div>
 
         <Suspense fallback={

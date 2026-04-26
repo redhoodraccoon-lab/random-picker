@@ -1,13 +1,3 @@
-async function loadImg(src: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = () => resolve(img);
-    img.onerror = reject;
-    img.src = src;
-  });
-}
-
 async function ensureFont(family: string, weight = 400) {
   if (document.fonts?.load) {
     try { await document.fonts.load(`${weight} 48px "${family}"`); } catch {}
@@ -58,8 +48,7 @@ export async function renderPoster(winners: string[], opts: { accent?: string } 
 
   await Promise.all([ensureFont("Anton"), ensureFont("Inter", 600), ensureFont("Inter"), ensureFont("JetBrains Mono", 500)]);
 
-  let logo: HTMLImageElement | null = null;
-  try { logo = await loadImg("/arena-logo.png"); } catch {}
+  // Logo drawn directly — no external image needed
 
   // Background
   const bg = ctx.createLinearGradient(0, 0, 0, H);
@@ -89,12 +78,44 @@ export async function renderPoster(winners: string[], opts: { accent?: string } 
   }
   ctx.restore();
 
-  // Logo
+  // Logo — Drawlot mark drawn with canvas primitives
   const logoY = 80;
-  if (logo) {
-    const lH = 150, lW = logo.width * (lH / logo.height);
-    ctx.drawImage(logo, (W - lW) / 2, logoY, lW, lH);
-  }
+  ctx.save();
+  const bS = 90, bX = (W - bS) / 2, bY = logoY;
+  // Orange rounded box
+  ctx.fillStyle = "rgba(255,107,26,0.18)";
+  roundRect(ctx, bX, bY, bS, bS, 18); ctx.fill();
+  ctx.strokeStyle = "rgba(255,107,26,0.35)"; ctx.lineWidth = 2;
+  roundRect(ctx, bX, bY, bS, bS, 18); ctx.stroke();
+  // Trophy icon (scaled Lucide path, centered in box)
+  const cx = W / 2, cy = bY + bS / 2;
+  const sc = 1.9; // scale from 24px viewbox
+  ctx.strokeStyle = "#FF6B1A"; ctx.lineWidth = 1.7 * sc * 0.5;
+  ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.fillStyle = "none";
+  const tp = (x: number, y: number) => [(x - 12) * sc + cx, (y - 12) * sc + cy] as [number, number];
+  ctx.beginPath();
+  ctx.moveTo(...tp(18, 2)); ctx.lineTo(...tp(6, 2));
+  ctx.lineTo(...tp(6, 9)); ctx.arcTo(...tp(6, 15), ...tp(12, 15), 6 * sc);
+  ctx.arcTo(...tp(18, 15), ...tp(18, 9), 6 * sc);
+  ctx.lineTo(...tp(18, 2)); ctx.closePath(); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(...tp(6, 9)); ctx.lineTo(...tp(4.5, 9));
+  ctx.arcTo(...tp(2, 6.5), ...tp(4.5, 4), 2.5 * sc); ctx.lineTo(...tp(6, 4)); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(...tp(18, 9)); ctx.lineTo(...tp(19.5, 9));
+  ctx.arcTo(...tp(22, 6.5), ...tp(19.5, 4), 2.5 * sc); ctx.lineTo(...tp(18, 4)); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(...tp(10, 15)); ctx.lineTo(...tp(10, 17));
+  ctx.arcTo(...tp(9.03, 18.21), ...tp(7, 22), 1 * sc); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(...tp(14, 15)); ctx.lineTo(...tp(14, 17));
+  ctx.arcTo(...tp(14.97, 18.21), ...tp(17, 22), 1 * sc); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(...tp(4, 22)); ctx.lineTo(...tp(20, 22)); ctx.stroke();
+  // Brand text
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.fillStyle = "#FFFFFF"; ctx.font = `700 38px "Anton", sans-serif`;
+  ctx.shadowColor = "rgba(255,107,26,0.4)"; ctx.shadowBlur = 12;
+  ctx.fillText("DRAWLOT.COM", W / 2, bY + bS + 44);
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = "#52525b"; ctx.font = `500 13px "Inter", sans-serif`;
+  ctx.fillText("BY KETSO.CO", W / 2, bY + bS + 78);
+  ctx.restore();
 
   // Divider
   const divY = logoY + 180;

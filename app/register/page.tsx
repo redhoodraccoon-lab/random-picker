@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
+import { DrawlotMark } from "@/components/DrawlotMark";
 
 /* ── Password strength ── */
 interface Strength { score: 0 | 1 | 2 | 3 | 4; label: string; color: string }
@@ -108,7 +109,7 @@ export default function RegisterPage() {
       <div className="relative w-full max-w-md">
         {/* Logo */}
         <div className="flex justify-center mb-10">
-          <img src="/arena-logo.png" alt="Arena" className="h-10 drop-shadow-lg" />
+          <DrawlotMark size="lg" />
         </div>
 
         {/* Card */}

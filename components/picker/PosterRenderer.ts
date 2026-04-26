@@ -129,7 +129,7 @@ export async function renderPoster(winners: string[], opts: { accent?: string } 
   ctx.save();
   ctx.textAlign = "center"; ctx.textBaseline = "middle";
   ctx.font = `700 18px "Inter", sans-serif`; ctx.fillStyle = "#FF8F3F";
-  drawSpaced(ctx, "◆ OFFICIAL DRAW RESULTS ◆", W / 2, divY + 36, 2.5);
+  drawSpaced(ctx, "◆ OFFICIAL DRAW RESULTS ◆", W / 2, divY + 20, 2.5);
   ctx.restore();
 
   // Headline

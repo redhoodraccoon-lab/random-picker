@@ -117,8 +117,8 @@ export async function renderPoster(winners: string[], opts: { accent?: string } 
   ctx.fillText("BY KETSO.CO", W / 2, bY + bS + 78);
   ctx.restore();
 
-  // Divider
-  const divY = logoY + 180;
+  // Divider — positioned below the brand text (box + 2 text lines ≈ 105px below box bottom)
+  const divY = logoY + bS + 120;
   ctx.save();
   const dg = ctx.createLinearGradient(W * 0.2, 0, W * 0.8, 0);
   dg.addColorStop(0, "rgba(255,107,26,0)"); dg.addColorStop(0.5, accent); dg.addColorStop(1, "rgba(255,107,26,0)");

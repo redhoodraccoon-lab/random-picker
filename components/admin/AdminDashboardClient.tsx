@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
-import { Users, Trophy, Shield, ChevronDown, ChevronUp } from "lucide-react";
+import { Users, Trophy, Shield, ChevronDown, ChevronUp, Trash2 } from "lucide-react";
+import * as Dialog from "@radix-ui/react-dialog";
 
 type User = {
   id: string;
@@ -30,7 +31,9 @@ export function AdminDashboardClient() {
   const [expandedUser, setExpandedUser] = useState<string | null>(null);
   const [draws, setDraws] = useState<Record<string, Draw[]>>({});
   const [loadingDraws, setLoadingDraws] = useState<string | null>(null);
-  const [togglingRole, setTogglingRole] = useState<string | null>(null);
+  const [updatingRole, setUpdatingRole] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     fetch("/api/admin/users")
@@ -50,9 +53,9 @@ export function AdminDashboardClient() {
     setLoadingDraws(null);
   };
 
-  const toggleRole = async (user: User) => {
-    const newRole = user.role === "ADMIN" ? "USER" : "ADMIN";
-    setTogglingRole(user.id);
+  const changeRole = async (user: User, newRole: string) => {
+    if (newRole === user.role) return;
+    setUpdatingRole(user.id);
     const res = await fetch(`/api/admin/users/${user.id}/role`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -61,7 +64,19 @@ export function AdminDashboardClient() {
     if (res.ok) {
       setUsers((prev) => prev.map((u) => u.id === user.id ? { ...u, role: newRole } : u));
     }
-    setTogglingRole(null);
+    setUpdatingRole(null);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    const res = await fetch(`/api/admin/users/${deleteTarget.id}`, { method: "DELETE" });
+    if (res.ok) {
+      setUsers((prev) => prev.filter((u) => u.id !== deleteTarget.id));
+      if (expandedUser === deleteTarget.id) setExpandedUser(null);
+    }
+    setDeleting(false);
+    setDeleteTarget(null);
   };
 
   const totalDraws = users.reduce((sum, u) => sum + u._count.draws, 0);
@@ -121,24 +136,36 @@ export function AdminDashboardClient() {
                   {/* Info */}
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{user.email}</p>
-                    <p className="text-xs text-zinc-500">{user.name || "No name"} · Joined {format(new Date(user.createdAt), "MMM d, yyyy")}</p>
+                    <p className="text-xs text-zinc-500">
+                      {user.name || "No name"} · Joined {format(new Date(user.createdAt), "MMM d, yyyy")}
+                    </p>
                   </div>
                   {/* Draws count */}
                   <div className="text-center shrink-0">
                     <p className="text-sm font-semibold">{user._count.draws}</p>
                     <p className="text-xs text-zinc-500">draws</p>
                   </div>
-                  {/* Role badge + toggle */}
-                  <button
-                    onClick={() => toggleRole(user)}
-                    disabled={togglingRole === user.id}
-                    className={`px-3 py-1 rounded-full text-xs font-semibold transition-all shrink-0 ${
+                  {/* Role dropdown */}
+                  <select
+                    value={user.role}
+                    disabled={updatingRole === user.id}
+                    onChange={(e) => changeRole(user, e.target.value)}
+                    className={`px-2 py-1 rounded-lg text-xs font-semibold border bg-zinc-800 transition-colors shrink-0 focus:outline-none cursor-pointer disabled:opacity-50 ${
                       user.role === "ADMIN"
-                        ? "bg-purple-500/20 text-purple-300 border border-purple-500/30 hover:bg-red-500/20 hover:text-red-300 hover:border-red-500/30"
-                        : "bg-zinc-700 text-zinc-400 border border-zinc-600 hover:bg-purple-500/20 hover:text-purple-300 hover:border-purple-500/30"
+                        ? "text-purple-300 border-purple-500/30"
+                        : "text-zinc-400 border-zinc-600"
                     }`}
                   >
-                    {togglingRole === user.id ? "..." : user.role === "ADMIN" ? "ADMIN" : "USER"}
+                    <option value="USER">USER</option>
+                    <option value="ADMIN">ADMIN</option>
+                  </select>
+                  {/* Delete button */}
+                  <button
+                    onClick={() => setDeleteTarget(user)}
+                    className="p-1.5 rounded-lg hover:bg-red-500/10 text-zinc-600 hover:text-red-400 transition-colors shrink-0"
+                    title="Delete user"
+                  >
+                    <Trash2 className="w-4 h-4" />
                   </button>
                   {/* Expand draws */}
                   <button
@@ -190,6 +217,42 @@ export function AdminDashboardClient() {
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog.Root open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" />
+          <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-sm bg-zinc-900 border border-zinc-700 rounded-2xl p-6 shadow-2xl">
+            <div className="flex flex-col items-center text-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center">
+                <Trash2 className="w-5 h-5 text-red-400" />
+              </div>
+              <div>
+                <Dialog.Title className="text-base font-bold text-white mb-1">Remove User</Dialog.Title>
+                <Dialog.Description className="text-sm text-zinc-400">
+                  Are you sure you want to remove{" "}
+                  <span className="text-white font-medium">{deleteTarget?.email}</span>?
+                  This will permanently delete their account and all draw history.
+                </Dialog.Description>
+              </div>
+              <div className="flex gap-3 w-full mt-2">
+                <Dialog.Close asChild>
+                  <button className="flex-1 px-4 py-2 rounded-lg border border-zinc-700 text-sm text-zinc-300 hover:bg-zinc-800 transition-colors">
+                    Cancel
+                  </button>
+                </Dialog.Close>
+                <button
+                  onClick={confirmDelete}
+                  disabled={deleting}
+                  className="flex-1 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 disabled:opacity-60 text-sm font-semibold text-white transition-colors"
+                >
+                  {deleting ? "Removing..." : "Remove User"}
+                </button>
+              </div>
+            </div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
     </div>
   );
 }

@@ -186,7 +186,7 @@ export default function LandingPage() {
 
       {/* ── Footer ── */}
       <footer className="relative z-10 border-t border-zinc-800/40 px-6 md:px-12 py-5 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-zinc-700">
-        <span className="font-semibold tracking-wide uppercase">Drawlot · ArenaPlus</span>
+        <span className="font-semibold tracking-wide uppercase">Drawlot · By Ketso.Co</span>
         <span>Results are final. Winners will be contacted via official channels.</span>
       </footer>
 

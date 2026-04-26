@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx prisma *)",
+      "Bash(npm run *)",
+      "Bash(npx tsc *)",
+      "Bash(git -C \"C:\\\\Users\\\\xeco\\\\Desktop\\\\Projects\\\\RandomPicker\\\\.claude\\\\worktrees\\\\sharp-cori-a5a965\" log --oneline -10)",
+      "Bash(git rm *)",
+      "Bash(git -C \"C:\\\\Users\\\\xeco\\\\Desktop\\\\Projects\\\\RandomPicker\\\\.claude\\\\worktrees\\\\sharp-cori-a5a965\" config user.name)",
+      "Bash(git -C \"C:\\\\Users\\\\xeco\\\\Desktop\\\\Projects\\\\RandomPicker\" config user.name)",
+      "Bash(git config *)",
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(git commit *)"
+    ]
+  }
+}

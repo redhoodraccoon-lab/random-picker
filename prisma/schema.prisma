@@ -1,0 +1,32 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String?
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  draws     Draw[]
+}
+
+model Draw {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id])
+  sourceType       String
+  sourceName       String?
+  participantCount Int
+  winnerCount      Int
+  participants     String
+  winners          String
+  createdAt        DateTime @default(now())
+
+  @@index([userId, createdAt])
+}

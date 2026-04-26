@@ -115,7 +115,7 @@ export default function RegisterPage() {
         <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 shadow-2xl">
           <div className="mb-7">
             <h1 className="text-2xl font-bold text-white tracking-tight">Create account</h1>
-            <p className="text-zinc-500 text-sm mt-1">Join the ArenaPlus draw platform</p>
+            <p className="text-zinc-500 text-sm mt-1">Join the Drawlot platform</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -130,7 +130,7 @@ export default function RegisterPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                placeholder="ArenaPlus / Juan dela Cruz"
+                placeholder="Drawlot / Juan dela Cruz"
                 className={inputClass}
               />
             </div>
@@ -252,7 +252,7 @@ export default function RegisterPage() {
         </div>
 
         <p className="text-center text-zinc-700 text-xs mt-6">
-          ArenaPlus Drawlot · Authorised Personnel Only
+          Drawlot · Authorised Personnel Only
         </p>
       </div>
     </div>

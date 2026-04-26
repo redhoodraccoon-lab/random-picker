@@ -7,7 +7,7 @@ import { TrackPageView } from "@/components/TrackPageView";
 
 export const metadata: Metadata = {
   title: "Drawlot — Official Random Picker",
-  description: "ArenaPlus official draw tool",
+  description: "Drawlot official draw tool",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

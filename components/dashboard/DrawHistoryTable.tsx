@@ -72,7 +72,7 @@ export function DrawHistoryTable({ draws, onDelete }: Props) {
   const handleExport = (id: string, date: string) => {
     const a = document.createElement("a");
     a.href = `/api/draws/${id}/export`;
-    a.download = `arenaplus-winners-${date}.csv`;
+    a.download = `drawlot-winners-${date}.csv`;
     a.click();
   };
 

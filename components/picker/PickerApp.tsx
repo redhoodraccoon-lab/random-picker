@@ -399,7 +399,7 @@ export function PickerApp() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `arenaplus-winners-${new Date().toISOString().slice(0, 10)}.jpg`;
+      a.download = `drawlot-winners-${new Date().toISOString().slice(0, 10)}.jpg`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

@@ -117,7 +117,7 @@ export default function LoginPage() {
         </Suspense>
 
         <p className="text-center text-zinc-700 text-xs mt-6">
-          ArenaPlus Drawlot · Authorised Personnel Only
+          Drawlot · Authorised Personnel Only
         </p>
       </div>
     </div>

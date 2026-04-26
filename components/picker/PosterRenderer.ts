@@ -186,7 +186,7 @@ export async function renderPoster(winners: string[], opts: { accent?: string } 
   const date = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
   ctx.textAlign = "center"; ctx.textBaseline = "middle";
   ctx.fillStyle = "#6B6B78"; ctx.font = `500 14px "JetBrains Mono", monospace`;
-  ctx.fillText(`DRAWN ${date.toUpperCase()}  //  ARENAPLUS SPORTSBOOK`, W / 2, footY);
+  ctx.fillText(`DRAWN ${date.toUpperCase()}  //  DRAWLOT.COM`, W / 2, footY);
   ctx.fillStyle = "#4B4B55"; ctx.font = `400 11px "Inter", sans-serif`;
   ctx.fillText("Results are final. Winners will be contacted via official channels.", W / 2, footY + 24);
   ctx.restore();

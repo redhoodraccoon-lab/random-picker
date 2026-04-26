@@ -8,7 +8,7 @@ import {
   ImageDown,
 } from "lucide-react";
 
-export const metadata = { title: "Drawlot — Official Random Draw Tool by ArenaPlus" };
+export const metadata = { title: "Drawlot — Official Random Draw Tool by Drawlot" };
 
 const features = [
   {
@@ -56,8 +56,8 @@ export default function LandingPage() {
             <Trophy className="w-4 h-4 text-[#FF6B1A]" />
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-sm font-bold text-white">Drawlot</span>
-            <span className="text-[10px] text-zinc-600 uppercase tracking-widest">by ArenaPlus</span>
+            <span className="text-sm font-bold text-white">Drawlot.Com</span>
+            <span className="text-[10px] text-zinc-600 uppercase tracking-widest">By Ketso.Co</span>
           </div>
         </div>
 

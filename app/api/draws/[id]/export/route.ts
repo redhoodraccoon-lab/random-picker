@@ -24,7 +24,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
   return new NextResponse(csv, {
     headers: {
       "Content-Type": "text/csv",
-      "Content-Disposition": `attachment; filename="arenaplus-winners-${date}.csv"`,
+      "Content-Disposition": `attachment; filename="drawlot-winners-${date}.csv"`,
     },
   });
 }

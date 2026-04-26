@@ -25,8 +25,8 @@ export function Sidebar({ userEmail, role }: { userEmail: string; role: string }
             <Trophy className="w-4 h-4 text-brand" />
           </div>
           <div>
-            <div className="text-sm font-bold text-white leading-none">Drawlot</div>
-            <div className="text-[10px] text-zinc-600 uppercase tracking-wider mt-0.5">ArenaPlus</div>
+            <div className="text-sm font-bold text-white leading-none">Drawlot.Com</div>
+            <div className="text-[10px] text-zinc-600 uppercase tracking-wider mt-0.5">By Ketso.Co</div>
           </div>
         </div>
       </div>
